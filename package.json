@@ -1,0 +1,22 @@
+{
+  "name": "advanced-clean-node-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/main",
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/module-alias": "^2.0.4",
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "module-alias": "^2.2.3",
+    "rimraf": "^5.0.5"
+  }
+}

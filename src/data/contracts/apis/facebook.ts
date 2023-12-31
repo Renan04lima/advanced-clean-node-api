@@ -9,7 +9,7 @@ export namespace LoadFacebookUserApi {
     }
 
     export type Output = undefined | {
-        user: string
+        name: string
         email: string
         facebookId: string
     }

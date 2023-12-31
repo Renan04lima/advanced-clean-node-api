@@ -3,10 +3,19 @@ import { LoadFacebookUserApi } from "@/data/contracts/apis"
 import { FacebookAuthenticationService } from "@/data/services/facebook-authentication"
 import { mock } from 'jest-mock-extended'
 
+function makeSut() {
+    const loadFacebookUserApi = mock<LoadFacebookUserApi>()
+    const sut = new FacebookAuthenticationService(loadFacebookUserApi)
+
+    return {
+        sut,
+        loadFacebookUserApi
+    }
+}
+
 describe('FacebookAuthenticationService', () => {
     it('should call LoadFacebookUserApi with correct params', async () => {
-        const loadFacebookUserApi = mock<LoadFacebookUserApi>()
-        const sut = new FacebookAuthenticationService(loadFacebookUserApi)
+        const { sut, loadFacebookUserApi } = makeSut()
 
         await sut.execute({ token: 'any_token' })
 
@@ -15,9 +24,8 @@ describe('FacebookAuthenticationService', () => {
     })
 
     it('should return AuthenticationError when LoadFacebookUserApi return undefined', async () => {
-        const loadFacebookUserApi = mock<LoadFacebookUserApi>()
+        const { sut, loadFacebookUserApi } = makeSut()
         loadFacebookUserApi.loadUser.mockResolvedValueOnce(undefined)
-        const sut = new FacebookAuthenticationService(loadFacebookUserApi)
 
         const result = await sut.execute({ token: 'any_token' })
 

@@ -6,6 +6,7 @@ import { FacebookAccount } from '@/domain/models'
 import { TokenGenerator } from '@/data/contracts/crypto'
 
 import { MockProxy, mock } from 'jest-mock-extended'
+import { AccessToken } from '@/domain/models/access-token'
 
 jest.mock('@/domain/models/facebook-account')
 
@@ -17,8 +18,7 @@ describe('FacebookAuthenticationService', () => {
     const token = 'any_token'
 
     beforeEach(() => {
-        facebookApi = mock<LoadFacebookUserApi>() 
-        crypto = mock<TokenGenerator>() 
+        facebookApi = mock()
         facebookApi.loadUser.mockResolvedValue({
             name: 'any_fb_name',
             email: 'any_fb_email',
@@ -27,6 +27,8 @@ describe('FacebookAuthenticationService', () => {
         userAccountRepo = mock<LoadUserAccountRepository & SaveFacebookAccountRepository>()
         userAccountRepo.load.mockResolvedValue(undefined) // nova conta 
         userAccountRepo.saveWithFacebook.mockResolvedValue({ id: 'any_account_id' })
+        crypto = mock()
+        crypto.generateToken.mockResolvedValue('any_generated_token')
         sut = new FacebookAuthenticationService(facebookApi, userAccountRepo, crypto)
     })
 
@@ -35,7 +37,7 @@ describe('FacebookAuthenticationService', () => {
 
         expect(facebookApi.loadUser).toHaveBeenCalledWith({ token: 'any_token' })
         expect(facebookApi.loadUser).toHaveBeenCalledTimes(1)
-    }) 
+    })
 
     it('should return AuthenticationError when LoadFacebookUserApi return undefined', async () => {
         facebookApi.loadUser.mockResolvedValueOnce(undefined)
@@ -66,7 +68,16 @@ describe('FacebookAuthenticationService', () => {
     it('should call TokenGenerator with correct params', async () => {
         await sut.execute({ token })
 
-        expect(crypto.generateToken).toHaveBeenCalledWith({ key: 'any_account_id' })
+        expect(crypto.generateToken).toHaveBeenCalledWith({
+            key: 'any_account_id',
+            expirationInMs: AccessToken.expirationInMs
+        })
         expect(crypto.generateToken).toHaveBeenCalledTimes(1)
+    })
+
+    it('should return an AccessToken on success', async () => {
+        const authResult = await sut.execute({ token })
+
+        expect(authResult).toEqual(new AccessToken('any_generated_token'))
     })
 })

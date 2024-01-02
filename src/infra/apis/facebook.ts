@@ -1,8 +1,6 @@
 import { LoadFacebookUserApi } from "@/data/contracts/apis";
 import { HttpClient } from "../http/client";
 
-
-
 type AppToken = {
     access_token: string;
 }
@@ -37,7 +35,6 @@ export class FacebookApi implements LoadFacebookUserApi {
             email: userInfo.email,
         }
     }
-
 
     private async getAppToken(): Promise<AppToken> {
         return await this.httpClient.get({

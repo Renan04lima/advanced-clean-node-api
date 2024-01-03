@@ -1,7 +1,7 @@
 import { LoadUserAccountRepository } from '@/data/contracts/repos';
 
-import { newDb } from 'pg-mem'
-import { Entity, PrimaryGeneratedColumn, Column, getRepository, DataSource } from "typeorm"
+import { IBackup, newDb } from 'pg-mem'
+import { Entity, PrimaryGeneratedColumn, Column, getRepository, DataSource, Repository } from 'typeorm'
 
 @Entity('users')
 class PgUser {
@@ -20,7 +20,7 @@ class PgUser {
 
 class PgUserAccountRepository implements LoadUserAccountRepository {
     constructor(
-        private readonly pgUserRepo: any
+        private readonly pgUserRepo: Repository<PgUser>
     ) { }
 
     async load({ email }: LoadUserAccountRepository.Input): Promise<LoadUserAccountRepository.Output> {
@@ -40,7 +40,12 @@ class PgUserAccountRepository implements LoadUserAccountRepository {
 
 describe('UserAccountRepo', () => {
     describe('load', () => {
-        it('should return an account if email exists', async () => {
+        let sut: PgUserAccountRepository
+        let connection: any
+        let pgUserRepo: Repository<PgUser>
+        let backup: IBackup
+
+        beforeAll(async () => {
             const db = newDb({
                 autoCreateForeignKeyIndices: true
             })
@@ -53,7 +58,7 @@ describe('UserAccountRepo', () => {
                 name: 'version',
             })
 
-            const connection = await db.adapters.createTypeormDataSource({
+            connection = await db.adapters.createTypeormDataSource({
                 type: 'postgres',
                 entities: [PgUser]
             })
@@ -61,9 +66,22 @@ describe('UserAccountRepo', () => {
             // create schema
             await connection.initialize();
             await connection.synchronize();
+            backup = db.backup();
 
-            const pgUserRepo = connection.getRepository(PgUser)
+            pgUserRepo = connection.getRepository(PgUser)
+        })
 
+        beforeEach(() => {
+            backup.restore()
+            sut = new PgUserAccountRepository(pgUserRepo)
+        })
+
+        afterAll(async () => {
+            await connection.close()
+        })
+
+
+        it('should return an account if email exists', async () => {
             const sut = new PgUserAccountRepository(pgUserRepo)
             await pgUserRepo.save({ email: 'any_email' })
 
@@ -72,41 +90,14 @@ describe('UserAccountRepo', () => {
             expect(account).toEqual({
                 id: '1',
             })
-
-            await connection.close()
         })
 
         it('should return undefined if email not exists', async () => {
-            const db = newDb({
-                autoCreateForeignKeyIndices: true
-            })
-            db.public.registerFunction({
-                implementation: () => 'test',
-                name: 'current_database',
-            });
-            db.public.registerFunction({
-                implementation: () => 'test',
-                name: 'version',
-            })
-
-            const connection = await db.adapters.createTypeormDataSource({
-                type: 'postgres',
-                entities: [PgUser]
-            })
-
-            // create schema
-            await connection.initialize();
-            await connection.synchronize();
-
-            const pgUserRepo = connection.getRepository(PgUser)
-
             const sut = new PgUserAccountRepository(pgUserRepo)
 
             const account = await sut.load({ email: 'any_email' })
 
             expect(account).toBeUndefined()
-
-            await connection.close()
         })
     })
 })

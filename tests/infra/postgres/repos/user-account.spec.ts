@@ -1,36 +1,20 @@
 import { PgUserAccountRepository } from '@/infra/postgres/repos';
 import { PgUser } from '@/infra/postgres/entities';
 
-import { IBackup, newDb } from 'pg-mem'
+import { IBackup, IMemoryDb } from 'pg-mem'
 import { Repository } from 'typeorm'
+import { makeFakeDb } from '../mocks/connection';
 
 describe('UserAccountRepo', () => {
     describe('load', () => {
+        let db: IMemoryDb
         let sut: PgUserAccountRepository
         let connection: any
         let pgUserRepo: Repository<PgUser>
         let backup: IBackup
 
         beforeAll(async () => {
-            const db = newDb({
-                autoCreateForeignKeyIndices: true
-            })
-            db.public.registerFunction({
-                implementation: () => 'test',
-                name: 'current_database',
-            });
-            db.public.registerFunction({
-                implementation: () => 'test',
-                name: 'version',
-            })
-
-            connection = await db.adapters.createTypeormDataSource({
-                type: 'postgres',
-                entities: [PgUser]
-            })
-
-            await connection.initialize();
-            await connection.synchronize();
+            ({ db, connection } = await makeFakeDb([PgUser]))
             backup = db.backup();
 
             pgUserRepo = connection.getRepository(PgUser)

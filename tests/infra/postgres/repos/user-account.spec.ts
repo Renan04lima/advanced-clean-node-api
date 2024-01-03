@@ -1,42 +1,8 @@
-import { LoadUserAccountRepository } from '@/data/contracts/repos';
+import { PgUserAccountRepository } from '@/infra/postgres/repos';
+import { PgUser } from '@/infra/postgres/entities';
 
 import { IBackup, newDb } from 'pg-mem'
-import { Entity, PrimaryGeneratedColumn, Column, getRepository, DataSource, Repository } from 'typeorm'
-
-@Entity('users')
-class PgUser {
-    @PrimaryGeneratedColumn()
-    id!: number
-
-    @Column({ nullable: true })
-    name?: string
-
-    @Column({ unique: true })
-    email!: string
-
-    @Column({ name: 'facebook_id', nullable: true })
-    facebookId?: number
-}
-
-class PgUserAccountRepository implements LoadUserAccountRepository {
-    constructor(
-        private readonly pgUserRepo: Repository<PgUser>
-    ) { }
-
-    async load({ email }: LoadUserAccountRepository.Input): Promise<LoadUserAccountRepository.Output> {
-        const user = await this.pgUserRepo.findOne({
-            where: {
-                email
-            }
-        })
-        if (user) {
-            return {
-                id: user.id.toString(),
-                name: user.name ?? undefined
-            }
-        }
-    }
-}
+import { Repository } from 'typeorm'
 
 describe('UserAccountRepo', () => {
     describe('load', () => {
@@ -63,7 +29,6 @@ describe('UserAccountRepo', () => {
                 entities: [PgUser]
             })
 
-            // create schema
             await connection.initialize();
             await connection.synchronize();
             backup = db.backup();

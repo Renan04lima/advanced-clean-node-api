@@ -4,6 +4,7 @@ import axios from "axios";
 
 export class AxiosHttpClient {
     async get({ url, params }: HttpClient.Input): Promise<void> {
-        await axios.get(url, { params })
+        const response = await axios.get(url, { params })
+        return response.data
     }
 }

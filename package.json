@@ -16,7 +16,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/jest": "^29.5.11",
+    "@types/jsonwebtoken": "^9.0.5",
     "@types/module-alias": "^2.0.4",
     "@types/node": "^20.10.5",
     "@typescript-eslint/eslint-plugin": "^4.31.0",
@@ -31,8 +33,8 @@
     "typescript": "^4.4.2"
   },
   "dependencies": {
-    "@types/axios": "^0.14.0",
     "axios": "^1.6.3",
+    "jsonwebtoken": "^9.0.2",
     "module-alias": "^2.2.3",
     "rimraf": "^5.0.5"
   }

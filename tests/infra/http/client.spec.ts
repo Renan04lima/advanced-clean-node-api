@@ -14,6 +14,10 @@ describe('AxiosHttpClient', () => {
         url = 'any_url'
         params = { any: 'any' }
         fakeAxios = axios as jest.Mocked<typeof axios>
+        fakeAxios.get.mockResolvedValue({
+            data: 'any_data',
+            status: 200
+        })
     })
 
     beforeEach(() => {
@@ -31,5 +35,14 @@ describe('AxiosHttpClient', () => {
                 params
             })
         });
+
+        it('should return data on success', async () => {
+            const data = await sut.get({
+                url,
+                params
+            })
+
+            expect(data).toEqual('any_data')
+        })
     })
 })

@@ -30,7 +30,6 @@ describe('UserAccountRepo', () => {
 
     describe('load', () => {
         it('should return an account if email exists', async () => {
-            const sut = new PgUserAccountRepository(pgUserRepo)
             await pgUserRepo.save({ email: 'any_email' })
 
             const account = await sut.load({ email: 'any_email' })
@@ -44,6 +43,22 @@ describe('UserAccountRepo', () => {
             const account = await sut.load({ email: 'any_email' })
 
             expect(account).toBeUndefined()
+        })
+    })
+
+    describe('load', () => {
+        it('should create an account if id is undefined', async () => {
+            await sut.saveWithFacebook({
+                name: 'any_name',
+                email: 'any_email',
+                facebookId: 'any_fb_id'
+            })
+
+            const user = await pgUserRepo.findOne({
+                where: { email: 'any_email' }
+            })
+
+            expect(user?.id).toBe(1)
         })
     })
 })

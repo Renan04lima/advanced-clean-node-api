@@ -10,9 +10,12 @@ class FacebookLoginController {
 }
 
 describe('FacebookLoginController', () => {
-    it('should return 400 if token is empty', () => {
-        const sut = new FacebookLoginController()
+    let sut: FacebookLoginController
 
+    beforeEach(() => {
+        sut = new FacebookLoginController()
+    })
+    it('should return 400 if token is empty', () => {
         const httpResponse = sut.handle({ token: '' })
 
         expect(httpResponse).toEqual({
@@ -22,8 +25,6 @@ describe('FacebookLoginController', () => {
     })
 
     it('should return 400 if token is null', () => {
-        const sut = new FacebookLoginController()
-
         const httpResponse = sut.handle({ token: null })
 
         expect(httpResponse).toEqual({
@@ -33,8 +34,6 @@ describe('FacebookLoginController', () => {
     })
 
     it('should return 400 if token is undefined', () => {
-        const sut = new FacebookLoginController()
-
         const httpResponse = sut.handle({ token: undefined })
 
         expect(httpResponse).toEqual({

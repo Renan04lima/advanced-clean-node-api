@@ -48,7 +48,7 @@ describe('UserAccountRepo', () => {
 
     describe('load', () => {
         it('should create an account if id is undefined', async () => {
-            await sut.saveWithFacebook({
+            const account = await sut.saveWithFacebook({
                 name: 'any_name',
                 email: 'any_email',
                 facebookId: 'any_fb_id'
@@ -59,6 +59,7 @@ describe('UserAccountRepo', () => {
             })
 
             expect(user?.id).toBe(1)
+            expect(account.id).toBe("1")
         })
 
         it('should update an account if id is defined', async () => {
@@ -68,7 +69,7 @@ describe('UserAccountRepo', () => {
                 facebookId: 'any_fb_id'
             })
 
-            await sut.saveWithFacebook({
+            const account = await sut.saveWithFacebook({
                 id: '1',
                 name: 'new_name',
                 email: 'new_email',
@@ -85,6 +86,7 @@ describe('UserAccountRepo', () => {
                 name: 'new_name',
                 facebookId: 'new_fb_id'
             })
+            expect(account.id).toBe("1")
         })
     })
 })

@@ -2,7 +2,7 @@ import { LoadUserAccountRepository, SaveFacebookAccountRepository } from "@/data
 import { Repository } from "typeorm";
 import { PgUser } from "../entities/pg-user";
 
-export class PgUserAccountRepository implements LoadUserAccountRepository {
+export class PgUserAccountRepository implements LoadUserAccountRepository, SaveFacebookAccountRepository {
     constructor(
         private readonly pgUserRepo: Repository<PgUser>
     ) { }
@@ -21,13 +21,15 @@ export class PgUserAccountRepository implements LoadUserAccountRepository {
         }
     }
 
-    async saveWithFacebook({ email, facebookId, name, id }: SaveFacebookAccountRepository.Input): Promise<void> {
+    async saveWithFacebook({ email, facebookId, name, id }: SaveFacebookAccountRepository.Input): Promise<SaveFacebookAccountRepository.Output> {
+        let userId: string
         if (id === undefined) {
-            await this.pgUserRepo.save({
+            const account = await this.pgUserRepo.save({
                 name,
                 email,
                 facebookId
             })
+            userId = account.id.toString()
         } else {
             await this.pgUserRepo.update(
                 { id: Number(id) },
@@ -35,6 +37,9 @@ export class PgUserAccountRepository implements LoadUserAccountRepository {
                     name,
                     facebookId
                 })
+            userId = id
         }
+
+        return { id: userId }
     }
 }

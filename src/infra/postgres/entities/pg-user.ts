@@ -12,5 +12,5 @@ export class PgUser {
     email!: string;
 
     @Column({ name: 'facebook_id', nullable: true })
-    facebookId?: number;
+    facebookId?: string;
 }

@@ -1,4 +1,4 @@
-import { RequiredFieldError } from "../errors/http"
+import { RequiredFieldError } from "@/application/errors/http"
 
 class RequiredStringValidator {
     constructor(
@@ -7,12 +7,13 @@ class RequiredStringValidator {
     ) { }
 
     validate(): Error | undefined {
-        return new RequiredFieldError(this.fieldName)
+        if (!this.value)
+            return new RequiredFieldError(this.fieldName)
     }
 }
 
 describe('RequeiredStringValidator', () => {
-    it('should return an error if string is empty', () => {
+    it('should return an error if value is empty', () => {
         const sut = new RequiredStringValidator('', 'any_field')
 
         const error = sut.validate()
@@ -20,7 +21,7 @@ describe('RequeiredStringValidator', () => {
         expect(error).toEqual(new RequiredFieldError('any_field'))
     })
 
-    it('should return an error if string is null', () => {
+    it('should return an error if value is null', () => {
         const sut = new RequiredStringValidator(null as any, 'any_field')
 
         const error = sut.validate()
@@ -28,11 +29,19 @@ describe('RequeiredStringValidator', () => {
         expect(error).toEqual(new RequiredFieldError('any_field'))
     })
 
-    it('should return an error if string is undefined', () => {
+    it('should return an error if value is undefined', () => {
         const sut = new RequiredStringValidator(undefined as any, 'any_field')
 
         const error = sut.validate()
 
         expect(error).toEqual(new RequiredFieldError('any_field'))
+    })
+
+    it('should return undefined if value is not invalid', () => {
+        const sut = new RequiredStringValidator('any_value', 'any_field')
+
+        const error = sut.validate()
+
+        expect(error).toBeUndefined()
     })
 })

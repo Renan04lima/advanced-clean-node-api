@@ -11,7 +11,9 @@
     "lint:fix": "npm run lint -- --fix",
     "test": "jest --passWithNoTests --no-cache --runInBand",
     "test:watch": "npm t -- --watch",
-    "test:coverage": "npm t -- --coverage"
+    "test:coverage": "npm t -- --coverage",
+    "test:integration": "npm t -- --config ./jest.integration.config.js",
+    "test:fb-api": "npm run test:integration -- ./tests/external/facebook-api.test.ts"
   },
   "author": "",
   "license": "ISC",

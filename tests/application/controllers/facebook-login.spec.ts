@@ -19,22 +19,12 @@ describe('FacebookLoginController', () => {
         facebookAuth.execute.mockResolvedValue(new AccessToken('token_value'))
     })
 
-    it('should return 400 if validations fails', async () => {
-        const error = new RequiredFieldError('token')
-        const ValidationCompositeSpy = jest.fn().mockImplementationOnce(() => ({
-            validate: jest.fn().mockReturnValueOnce(error)
-        }))
-        jest.mocked(ValidationComposite).mockImplementationOnce(ValidationCompositeSpy)
+    it('should build Validators correctly', async () => {
+        const validators = sut.buildValidators({ token: 'any_token' })
 
-        const httpResponse = await sut.handle({ token: 'any_token' })
-
-        expect(ValidationComposite).toHaveBeenCalledWith([
+        expect(validators).toEqual([
             new RequiredStringValidator('any_token', 'token')
         ])
-        expect(httpResponse).toEqual({
-            statusCode: 400,
-            data: new RequiredFieldError('token')
-        })
     })
 
     it('should call FacebookAuthentication with correct params', async () => {
